@@ -1,0 +1,61 @@
+THE NAIRA ILLUSION — STAGE 2 ANALYTICAL FINDINGS
+Coverage: January 2014 to December 2024
+Default analytical balance: NGN 1,000,000
+
+MODEL CONVENTIONS
+- Savings compounds monthly using the annualized CBN savings benchmark divided by 12.
+- Fixed deposits lock the tenor rate at term start, accrue simple interest, and roll at maturity.
+- Fixed-deposit simulations stop if a required rollover-month rate is unavailable; no imputation is used.
+- Real balances are expressed in start-month naira using NBS headline CPI.
+- USD equivalents use the CBN official/reference NGN per USD series.
+
+SAVINGS — 120 valid rolling 12-month windows
+  Positive real-return windows: 0 (0.0%)
+  Best real window: 2014-01 to 2015-01: -4.35% real; 3.43% nominal
+  Worst real window: 2023-06 to 2024-06: -21.20% real; 5.74% nominal
+  Worst USD-value window: 2023-03 to 2024-03: -67.91%
+
+3M — 111 valid rolling 12-month windows
+  Positive real-return windows: 13 (11.7%)
+  Best real window: 2014-01 to 2015-01: 1.42% real; 9.67% nominal
+  Worst real window: 2023-03 to 2024-03: -19.06% real; 7.82% nominal
+  Worst USD-value window: 2023-03 to 2024-03: -67.14%
+
+6M — 118 valid rolling 12-month windows
+  Positive real-return windows: 15 (12.7%)
+  Best real window: 2014-03 to 2015-03: 1.43% real; 10.05% nominal
+  Worst real window: 2023-06 to 2024-06: -19.03% real; 8.66% nominal
+  Worst USD-value window: 2023-03 to 2024-03: -66.75%
+
+12M — 120 valid rolling 12-month windows
+  Positive real-return windows: 8 (6.7%)
+  Best real window: 2014-04 to 2015-04: 0.96% real; 9.69% nominal
+  Worst real window: 2023-06 to 2024-06: -19.64% real; 7.83% nominal
+  Worst USD-value window: 2023-03 to 2024-03: -67.14%
+
+FULL PERIOD — Savings benchmark
+  NGN 1,000,000 -> NGN 1,503,654 nominal
+  Purchasing power in Jan-2014 naira: NGN 265,635
+  End USD equivalent: USD 968
+  Nominal return: 50.37%
+  Real return: -73.44%
+  USD-value change vs start: -84.49%
+
+FULL PERIOD — 12-month rolling fixed deposit
+  NGN 1,000,000 -> NGN 2,416,787 nominal
+  Purchasing power in Jan-2014 naira: NGN 426,949
+  End USD equivalent: USD 1,556
+  Nominal return: 141.68%
+  Real return: -57.31%
+  USD-value change vs start: -75.07%
+
+STORY-READY FINDINGS
+1. The CBN savings benchmark failed to beat inflation in every valid rolling 12-month window in the 2014-2024 sample (0 of 120 positive real windows).
+2. Fixed deposits occasionally preserved purchasing power, but only in limited periods: 3m had 13 positive real windows, 6m had 15, and 12m had 8.
+3. The most severe savings purchasing-power loss was Jun-2023 to Jun-2024: about -21.20% real despite a positive nominal return of about +5.74%.
+4. The sharpest 12-month USD-equivalent deterioration for the savings benchmark was Mar-2023 to Mar-2024: about -67.91%, even after interest.
+5. Over Jan-2014 to Dec-2024, NGN 1,000,000 on the savings benchmark grows to roughly NGN 1.50m nominally, but has only about NGN 266k of Jan-2014 purchasing power and about USD 968 at the Dec-2024 official/reference rate.
+6. A rolling 12-month fixed-deposit strategy grows the same NGN 1,000,000 to about NGN 2.42m nominally over the full sample, yet still ends around NGN 427k in Jan-2014 purchasing power: a real loss of about 57.31%.
+
+IMPORTANT INTERPRETATION NOTE
+These are benchmark simulations, not reconstructions of a particular retail bank account. Taxes, fees, minimum balances, bank-specific compounding, early-withdrawal rules, and parallel-market FX are excluded.
