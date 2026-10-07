@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#11110f" />
+  <meta name="description" content="The Naira Illusion — an interactive experiment showing the difference between nominal savings, purchasing power and USD-equivalent wealth in Nigeria, 2014–2024." />
+  <title>The Naira Illusion</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+  <link rel="stylesheet" href="./css/styles.css" />
+</head>
+<body>
+  <a class="skip-link" href="#experiment">Skip to experiment</a>
+
+  <header class="site-header" aria-label="Primary navigation">
+    <a class="brand" href="#top" aria-label="The Naira Illusion home">THE NAIRA ILLUSION</a>
+    <nav>
+      <a href="#experiment">Experiment</a>
+      <a href="#history">History</a>
+      <a href="#methodology">Method</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero section-pad" aria-labelledby="hero-title">
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <p class="eyebrow">Nigeria · 2014–2024</p>
+          <h1 id="hero-title">The number in your account went up.<br><em>Did your wealth?</em></h1>
+          <p class="hero-deck">A savings balance tells you how many naira you have. It does not tell you what those naira can still buy—or what they are worth outside the currency.</p>
+          <a class="hero-cta" href="#experiment">Run the experiment <span aria-hidden="true">↓</span></a>
+        </div>
+        <div class="hero-proof" aria-label="Headline finding">
+          <p class="proof-label">One uncomfortable benchmark</p>
+          <strong id="hero-real-loss">−73.4%</strong>
+          <p>real purchasing-power change for ₦1m held against the CBN savings benchmark from Jan 2014 to Dec 2024.</p>
+          <p class="micro-note">Benchmark simulation, not a reconstruction of a specific bank account.</p>
+        </div>
+      </div>
+      <div class="hero-ticker" aria-hidden="true">
+        <span>NOMINAL ≠ REAL</span><span>INFLATION COMPOUNDS</span><span>FX CHANGES THE VIEW</span><span>NOMINAL ≠ REAL</span>
+      </div>
+    </section>
+
+    <section id="experiment" class="experiment section-pad" aria-labelledby="experiment-title">
+      <div class="section-intro">
+        <p class="eyebrow">01 / Run the experiment</p>
+        <h2 id="experiment-title">Put one savings decision under three lenses.</h2>
+        <p>Choose the amount, dates and benchmark. The simulation then follows the same money as a bank-statement balance, as purchasing power in your starting month, and as a CBN official-rate USD equivalent.</p>
+      </div>
+
+      <form id="experiment-form" class="control-panel" novalidate>
+        <div class="control-group amount-group">
+          <label for="starting-balance">Starting balance</label>
+          <div class="money-input"><span>₦</span><input id="starting-balance" name="balance" inputmode="decimal" type="number" min="1000" step="1000" value="1000000" /></div>
+        </div>
+        <div class="control-group">
+          <label for="start-date">Start</label>
+          <select id="start-date" name="start"></select>
+        </div>
+        <div class="control-group">
+          <label for="end-date">End</label>
+          <select id="end-date" name="end"></select>
+        </div>
+        <fieldset class="control-group strategy-group">
+          <legend>Deposit benchmark</legend>
+          <div id="strategy-buttons" class="segmented" role="radiogroup" aria-label="Deposit benchmark">
+            <button type="button" class="segment active" data-strategy="savings" role="radio" aria-checked="true">Savings</button>
+            <button type="button" class="segment" data-strategy="3m" role="radio" aria-checked="false">3 month</button>
+            <button type="button" class="segment" data-strategy="6m" role="radio" aria-checked="false">6 month</button>
+            <button type="button" class="segment" data-strategy="12m" role="radio" aria-checked="false">12 month</button>
+          </div>
+        </fieldset>
+        <button class="run-button" type="submit">Run the experiment <span aria-hidden="true">↗</span></button>
+        <p id="form-status" class="form-status" role="status" aria-live="polite"></p>
+      </form>
+
+      <div id="results" class="results" aria-live="polite">
+        <div class="results-heading">
+          <p class="eyebrow">The same money, three different truths</p>
+          <h3 id="result-headline">Your bank statement is only one version of the story.</h3>
+        </div>
+
+        <div class="metric-grid">
+          <article class="metric-card metric-nominal">
+            <div class="metric-top"><span class="metric-dot"></span><span>Bank statement</span></div>
+            <strong id="metric-nominal">—</strong>
+            <span id="metric-nominal-change" class="metric-change">—</span>
+            <p>Nominal balance after benchmark interest.</p>
+          </article>
+          <article class="metric-card metric-real">
+            <div class="metric-top"><span class="metric-dot"></span><span>Purchasing power</span></div>
+            <strong id="metric-real">—</strong>
+            <span id="metric-real-change" class="metric-change">—</span>
+            <p>Value in the purchasing power of your starting month.</p>
+          </article>
+          <article class="metric-card metric-usd">
+            <div class="metric-top"><span class="metric-dot"></span><span>Official-rate USD value</span></div>
+            <strong id="metric-usd">—</strong>
+            <span id="metric-usd-change" class="metric-change">—</span>
+            <p>Converted using the CBN monthly official/reference rate.</p>
+          </article>
+        </div>
+
+        <figure class="chart-shell wealth-shell" aria-labelledby="wealth-chart-title">
+          <div class="chart-heading">
+            <div>
+              <p class="eyebrow">Wealth index</p>
+              <h3 id="wealth-chart-title">Watch the three versions separate.</h3>
+            </div>
+            <div class="legend" aria-label="Chart legend">
+              <span><i class="legend-line nominal"></i>Nominal</span>
+              <span><i class="legend-line real"></i>Purchasing power</span>
+              <span><i class="legend-line usd"></i>USD value</span>
+            </div>
+          </div>
+          <p class="chart-note">All three begin at 100. The index isolates how each definition of wealth changes from the same starting point.</p>
+          <div id="wealth-chart" class="chart" role="img" aria-label="Line chart comparing nominal, real purchasing power, and official-rate USD wealth indices over the selected period"></div>
+          <div id="wealth-tooltip" class="chart-tooltip" hidden></div>
+
+          <div class="scrubber-wrap">
+            <div class="scrubber-head">
+              <span>Drag through the decision</span>
+              <strong id="scrub-date">—</strong>
+            </div>
+            <input id="time-scrubber" class="time-scrubber" type="range" min="0" max="1" value="1" step="1" aria-label="Explore the selected investment month by month" />
+            <div class="snapshot-grid">
+              <div><span>Statement balance</span><strong id="snap-nominal">—</strong></div>
+              <div><span>Interest added</span><strong id="snap-interest">—</strong></div>
+              <div><span>Purchasing power</span><strong id="snap-real">—</strong></div>
+              <div><span>Inflation gap</span><strong id="snap-inflation">—</strong></div>
+              <div><span>Official-rate USD</span><strong id="snap-usd">—</strong></div>
+              <div><span>USD value change</span><strong id="snap-usd-change">—</strong></div>
+            </div>
+          </div>
+        </figure>
+      </div>
+    </section>
+
+    <section id="history" class="history section-pad" aria-labelledby="history-title">
+      <div class="section-intro narrow">
+        <p class="eyebrow">02 / Zoom out</p>
+        <h2 id="history-title">When did saving actually work?</h2>
+        <p>Each cell below asks a stricter question: over the following 12 months, did the deposit benchmark increase purchasing power after inflation?</p>
+      </div>
+
+      <figure class="chart-shell strip-shell" aria-labelledby="strip-title">
+        <div class="chart-heading">
+          <div>
+            <p class="eyebrow">Rolling 12-month real return</p>
+            <h3 id="strip-title">Green is rarer than a positive bank balance.</h3>
+          </div>
+          <div class="strip-scale" aria-hidden="true"><span>Real loss</span><i></i><span>Real gain</span></div>
+        </div>
+        <div id="return-strip" class="chart return-strip" role="img" aria-label="Heat strip of rolling 12-month inflation-adjusted returns across four deposit benchmarks"></div>
+        <div id="strip-tooltip" class="chart-tooltip" hidden></div>
+        <div id="return-summary" class="return-summary"></div>
+      </figure>
+
+      <div class="finding-band">
+        <p>For the ordinary savings benchmark, the question has a stark answer.</p>
+        <strong><span id="positive-savings-count">0</span> of 120</strong>
+        <p>valid rolling 12-month windows produced a positive real return in this sample.</p>
+      </div>
+    </section>
+
+    <section class="pain section-pad" aria-labelledby="pain-title">
+      <div class="section-intro">
+        <p class="eyebrow">03 / The pain ranking</p>
+        <h2 id="pain-title">The worst years did not look like zero interest.</h2>
+        <p>They looked like positive nominal returns being overwhelmed by a faster rise in prices. Choose a benchmark to rank its five worst valid 12-month periods.</p>
+      </div>
+
+      <div class="pain-layout">
+        <div class="pain-controls" aria-label="Pain ranking benchmark">
+          <button class="pain-choice active" data-strategy="savings">Savings</button>
+          <button class="pain-choice" data-strategy="3m">3 month</button>
+          <button class="pain-choice" data-strategy="6m">6 month</button>
+          <button class="pain-choice" data-strategy="12m">12 month</button>
+        </div>
+        <div id="pain-ranking" class="pain-ranking"></div>
+      </div>
+    </section>
+
+    <section class="reveal section-pad" aria-labelledby="reveal-title">
+      <div class="reveal-inner">
+        <p class="eyebrow">04 / The reveal</p>
+        <h2 id="reveal-title">A positive return is not necessarily a positive outcome.</h2>
+        <div class="reveal-sentence" id="reveal-sentence">
+          Your <strong>₦1,000,000</strong> became <strong>—</strong> on the statement, retained <strong>—</strong> of its original purchasing power, and became <strong>—</strong> at the CBN USD/NGN rate.
+        </div>
+        <div class="reveal-actions">
+          <button id="copy-result" class="text-button" type="button">Copy this result</button>
+          <a class="text-button" href="#experiment">Try another period ↑</a>
+        </div>
+      </div>
+    </section>
+
+    <section id="methodology" class="method section-pad" aria-labelledby="method-title">
+      <div class="section-intro narrow">
+        <p class="eyebrow">Methodology</p>
+        <h2 id="method-title">What this experiment does—and does not claim.</h2>
+      </div>
+      <div class="method-grid">
+        <article><span>01</span><h3>Savings</h3><p>Monthly compounding using the annualized CBN savings benchmark divided by 12.</p></article>
+        <article><span>02</span><h3>Fixed deposits</h3><p>The selected tenor rate is locked at term start, accrues simple interest, and rolls at maturity using the rate then available.</p></article>
+        <article><span>03</span><h3>Inflation</h3><p>Real balances use the NBS headline All Items CPI on the pre-2025 basis, expressed in the purchasing power of your chosen starting month.</p></article>
+        <article><span>04</span><h3>Foreign exchange</h3><p>USD equivalents use the CBN monthly official/reference NGN-per-USD series—not the parallel market.</p></article>
+      </div>
+      <div class="method-note">
+        <p><strong>Important:</strong> this is a benchmark simulation. It excludes bank-specific fees, taxes, minimum balances, early-withdrawal rules and product-specific compounding. Missing fixed-deposit rates are never filled or guessed; affected simulations stop and tell you where the missing rate occurs.</p>
+        <p class="source-line">Data: <a href="https://www.cbn.gov.ng/rates/mnymktind.html" target="_blank" rel="noreferrer">CBN Money Market Indicators</a>, CBN official/reference exchange rates, and <a href="https://microdata.nigerianstat.gov.ng/index.php/catalog/154/download/1127" target="_blank" rel="noreferrer">NBS headline CPI</a>. Historical range: Jan 2014–Dec 2024. The historical CPI module stays on the pre-2025 basis and does not splice the rebased 2025 series into the sample.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <span>THE NAIRA ILLUSION</span>
+    <span>An interactive data story · Nigeria 2014–2024</span>
+  </footer>
+
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>
