@@ -24,8 +24,10 @@ No build step, npm install, database, API key, or paid hosting is required.
 
 ## Data
 
-- `data/naira_illusion_monthly.csv`: monthly CPI, CBN deposit benchmarks, and CBN official/reference USD/NGN.
-- `data/naira_illusion_rolling_12m.csv`: audit/derived rolling analysis. The live experience recomputes rolling windows in-browser from the monthly source data.
+- `data/naira_illusion_monthly.csv`: production monthly CPI, CBN deposit benchmarks, and CBN official/reference USD/NGN.
+- Rolling 12-month analysis is recomputed in-browser from the monthly source data.
+- `data/sources.md`: source notes, CPI-vintage handling, and unresolved fixed-deposit cells.
+- `analysis/findings.txt`: validated story-ready analytical findings.
 
 ### Model conventions
 
@@ -50,10 +52,8 @@ the-naira-illusion/
 │   └── simulator.js
 ├── data/
 │   ├── naira_illusion_monthly.csv
-│   ├── naira_illusion_rolling_12m.csv
 │   └── sources.md
 ├── analysis/
-│   ├── findings.txt
-│   └── data_audit.xlsx
+│   └── findings.txt
 └── README.md
 ```
