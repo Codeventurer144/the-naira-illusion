@@ -15,6 +15,16 @@
 <body>
   <a class="skip-link" href="#dashboard-main">Skip to dashboard</a>
 
+  <div id="onboarding" class="onboarding" role="dialog" aria-modal="true" aria-labelledby="onboarding-title">
+    <div class="onboarding-card">
+      <span class="onboarding-step">START HERE</span>
+      <h2 id="onboarding-title">Try the dashboard with your own savings example</h2>
+      <p>Enter an amount, choose when it was saved and when you want to withdraw it, then select the deposit option. Click <strong>Run analysis</strong> to see what the account balance could become and what that amount would be worth after inflation.</p>
+      <button id="onboarding-close" type="button">Got it — let me try</button>
+      <div class="guide-arrow" aria-hidden="true"><span>←</span><small>Use these inputs</small></div>
+    </div>
+  </div>
+
   <div class="dashboard-shell">
     <aside class="sidebar" aria-label="Dashboard controls">
       <div class="brand-block">
@@ -48,7 +58,7 @@
       <form id="experiment-form" class="filter-panel" novalidate>
         <div class="filter-heading">
           <span>Simulation inputs</span>
-          <small>Change these inputs and run the analysis.</small>
+          <small>Change the amount, dates and deposit option, then run the analysis.</small>
         </div>
 
         <label class="filter-field" for="starting-balance">
@@ -60,22 +70,22 @@
         </label>
 
         <label class="filter-field" for="start-date">
-          <span>Start month</span>
+          <span>Date saved</span>
           <select id="start-date" name="start"></select>
         </label>
 
         <label class="filter-field" for="end-date">
-          <span>End month</span>
+          <span>Date withdrawn</span>
           <select id="end-date" name="end"></select>
         </label>
 
-        <fieldset class="filter-field benchmark-field">
-          <legend>Deposit benchmark</legend>
-          <div class="benchmark-buttons" role="radiogroup" aria-label="Deposit benchmark">
-            <button type="button" class="benchmark-button active" data-strategy="savings" role="radio" aria-checked="true">Savings</button>
-            <button type="button" class="benchmark-button" data-strategy="3m" role="radio" aria-checked="false">3M</button>
-            <button type="button" class="benchmark-button" data-strategy="6m" role="radio" aria-checked="false">6M</button>
-            <button type="button" class="benchmark-button" data-strategy="12m" role="radio" aria-checked="false">12M</button>
+        <fieldset class="filter-field deposit-field">
+          <legend>Deposit option</legend>
+          <div class="deposit-buttons" role="radiogroup" aria-label="Deposit option">
+            <button type="button" class="deposit-button active" data-strategy="savings" role="radio" aria-checked="true">Savings</button>
+            <button type="button" class="deposit-button" data-strategy="3m" role="radio" aria-checked="false">3M</button>
+            <button type="button" class="deposit-button" data-strategy="6m" role="radio" aria-checked="false">6M</button>
+            <button type="button" class="deposit-button" data-strategy="12m" role="radio" aria-checked="false">12M</button>
           </div>
         </fieldset>
 
@@ -83,10 +93,19 @@
         <p id="form-status" class="form-status" role="status" aria-live="polite"></p>
       </form>
 
-      <div class="sidebar-footer">
-        <span>Data coverage</span>
-        <strong>Jan 2014 — Dec 2024</strong>
-        <small>CBN + NBS historical data</small>
+      <div class="sidebar-bottom">
+        <div class="sidebar-author">
+          <img src="https://res.cloudinary.com/dxdurjawc/image/upload/v1793199983/portrait_image_wveovk.jpg" alt="Portrait of Eniifeoluwa Samuel Oke" />
+          <div>
+            <strong>Eniifeoluwa Samuel Oke</strong>
+            <span>BI · Analytics · Data visualisation</span>
+          </div>
+        </div>
+        <div class="sidebar-footer">
+          <span>Data coverage</span>
+          <strong>Jan 2014 — Dec 2024</strong>
+          <small>CBN + NBS historical data</small>
+        </div>
       </div>
     </aside>
 
@@ -94,7 +113,6 @@
       <header class="dashboard-topbar">
         <div>
           <span class="topbar-kicker">Interactive D3.js dashboard</span>
-          <strong id="active-page-title">Overview</strong>
         </div>
         <div class="topbar-meta">
           <span class="status-dot"></span>
@@ -109,7 +127,7 @@
           <div>
             <span class="section-label">Portfolio dashboard</span>
             <h1 id="overview-title">Overview</h1>
-            <p>Compare the bank balance with inflation-adjusted purchasing power and the official-rate US dollar value for the same savings decision.</p>
+            <p>See how the same savings decision looks as a bank balance, as inflation-adjusted purchasing power, and as an official-rate US dollar value.</p>
           </div>
           <button id="copy-result" class="secondary-button" type="button">Copy current result</button>
         </div>
@@ -119,30 +137,30 @@
             <div class="kpi-label"><span class="series-dot nominal"></span>Account balance</div>
             <strong id="metric-nominal">—</strong>
             <span id="metric-nominal-change" class="kpi-delta">—</span>
-            <small>Nominal balance after benchmark interest.</small>
+            <small>Balance after interest from the selected deposit option.</small>
           </article>
           <article class="kpi-card">
             <div class="kpi-label"><span class="series-dot real"></span>Purchasing power</div>
             <strong id="metric-real">—</strong>
             <span id="metric-real-change" class="kpi-delta">—</span>
-            <small>Value measured in the purchasing power of the starting month.</small>
+            <small>What the end balance is worth in the purchasing power of your starting month.</small>
           </article>
           <article class="kpi-card">
             <div class="kpi-label"><span class="series-dot usd"></span>Official-rate USD value</div>
             <strong id="metric-usd">—</strong>
             <span id="metric-usd-change" class="kpi-delta">—</span>
-            <small>Converted using the CBN official/reference monthly rate.</small>
+            <small>Converted using the CBN official/reference monthly exchange rate.</small>
           </article>
           <article class="kpi-card emphasis">
             <div class="kpi-label"><span class="series-dot real"></span>Real return</div>
             <strong id="metric-real-return">—</strong>
             <span id="metric-duration" class="kpi-delta neutral">—</span>
-            <small>Return after accounting for the change in consumer prices.</small>
+            <small>The gain or loss after inflation is taken into account.</small>
           </article>
         </div>
 
         <div class="overview-grid">
-          <article class="panel chart-panel span-2">
+          <article class="panel chart-panel overview-main-chart">
             <div class="panel-heading">
               <div>
                 <span class="panel-kicker">Indexed wealth comparison</span>
@@ -154,23 +172,9 @@
                 <span><i class="legend-line usd"></i>USD value</span>
               </div>
             </div>
-            <p class="panel-note">All three series start at 100. A value of 150 means that measure is 50% above its starting value; 70 means it is 30% below.</p>
-            <div id="overview-wealth-chart" class="chart" role="img" aria-label="Indexed line chart of nominal balance, purchasing power and official-rate US dollar value"></div>
+            <p class="panel-note">All three lines begin at 100. A value of 150 means that measure is 50% above where it started; 70 means it is 30% below.</p>
+            <div id="overview-wealth-chart" class="chart" role="img" aria-label="Indexed line chart of account balance, purchasing power and official-rate US dollar value"></div>
             <div id="overview-tooltip" class="chart-tooltip" hidden></div>
-          </article>
-
-          <article class="panel profile-panel">
-            <img class="profile-image" src="https://res.cloudinary.com/dxdurjawc/image/upload/v1793199983/portrait_image_wveovk.jpg" alt="Portrait of the project author" />
-            <div class="profile-copy">
-              <span class="panel-kicker">Project author</span>
-              <h2>Eniifeoluwa Samuel Oke</h2>
-              <p>Business intelligence, analytics and interactive data visualisation.</p>
-            </div>
-            <div class="profile-stat">
-              <span>Savings windows that beat inflation</span>
-              <strong><span id="positive-savings-count">0</span> / 120</strong>
-              <small>Rolling 12-month windows in the 2014–2024 sample.</small>
-            </div>
           </article>
 
           <article class="panel compact-panel">
@@ -180,6 +184,7 @@
                 <h2>Savings rate vs 12-month inflation</h2>
               </div>
             </div>
+            <p class="panel-note">This shows whether the ordinary savings rate was keeping up with the annual rise in consumer prices.</p>
             <div id="inflation-rate-chart" class="chart mini-chart" role="img" aria-label="Line chart comparing savings rates with twelve-month inflation"></div>
           </article>
 
@@ -187,9 +192,10 @@
             <div class="panel-heading">
               <div>
                 <span class="panel-kicker">Current scenario</span>
-                <h2>Value retained</h2>
+                <h2>How much purchasing power remained?</h2>
               </div>
             </div>
+            <p class="panel-note">The first bar is what you started with. The second is the end balance after adjusting for inflation.</p>
             <div id="retained-chart" class="chart mini-chart" role="img" aria-label="Bar chart comparing starting balance with inflation-adjusted end value"></div>
           </article>
         </div>
@@ -208,7 +214,7 @@
           <div>
             <span class="section-label">Selected scenario</span>
             <h1 id="simulator-title">Savings simulator</h1>
-            <p>Follow the selected amount month by month and compare the account balance with what that money could still buy.</p>
+            <p>Move through the selected period month by month and see how the account balance, purchasing power and official-rate US dollar value change.</p>
           </div>
         </div>
 
@@ -224,6 +230,7 @@
               <span><i class="legend-line usd"></i>USD value</span>
             </div>
           </div>
+          <p class="panel-note">The three lines are indexed to the same starting point so you can compare percentage changes even though naira and US dollars use different units.</p>
           <div id="simulator-wealth-chart" class="chart large-chart" role="img" aria-label="Detailed indexed line chart of the selected savings scenario"></div>
           <div id="simulator-tooltip" class="chart-tooltip" hidden></div>
 
@@ -247,8 +254,8 @@
         <article class="explanation-panel">
           <div class="explanation-icon">i</div>
           <div>
-            <span>How to read this page</span>
-            <p id="simulator-explanation">The explanation will update with the selected amount, dates and benchmark.</p>
+            <span>What these numbers mean</span>
+            <p id="simulator-explanation">The explanation will update with the selected amount, dates and deposit option.</p>
           </div>
         </article>
       </section>
@@ -258,7 +265,7 @@
           <div>
             <span class="section-label">Rolling 12-month analysis</span>
             <h1 id="history-title">Historical returns</h1>
-            <p>Each cell measures what happened to purchasing power over the following 12 months for each deposit benchmark.</p>
+            <p>Each point asks a simple question: if money stayed in that deposit option for 12 months, did the return actually keep up with inflation?</p>
           </div>
         </div>
 
@@ -272,20 +279,21 @@
               <span>Real loss</span><i></i><span>Real gain</span>
             </div>
           </div>
-          <p class="panel-note">Red cells mean the account may have grown in naira terms, but purchasing power still fell. Green cells mean the deposit return exceeded inflation over that 12-month period.</p>
-          <div id="return-strip" class="chart return-strip" role="img" aria-label="Heatmap of rolling 12-month inflation-adjusted returns across deposit benchmarks"></div>
+          <p class="panel-note">Red means the account may have increased in naira terms, but the amount it could buy still fell. Green means the deposit return was higher than inflation over that 12-month period.</p>
+          <div id="return-strip" class="chart return-strip" role="img" aria-label="Heatmap of rolling 12-month inflation-adjusted returns across deposit options"></div>
           <div id="strip-tooltip" class="chart-tooltip" hidden></div>
           <div id="return-summary" class="return-summary"></div>
         </article>
 
-        <article class="panel chart-panel">
+        <article class="panel chart-panel history-line-panel">
           <div class="panel-heading">
             <div>
-              <span class="panel-kicker">Savings benchmark</span>
-              <h2>Rolling 12-month nominal return vs real return</h2>
+              <span class="panel-kicker">Savings account comparison</span>
+              <h2>Rolling 12-month account return vs inflation-adjusted return</h2>
             </div>
           </div>
-          <div id="rolling-return-chart" class="chart medium-chart" role="img" aria-label="Line chart comparing rolling nominal and real returns for the savings benchmark"></div>
+          <p class="panel-note">The gold line is the percentage increase in the account balance. The red line shows what remained after inflation.</p>
+          <div id="rolling-return-chart" class="chart medium-chart" role="img" aria-label="Line chart comparing rolling nominal and real returns for the savings account option"></div>
         </article>
 
         <article class="explanation-panel">
@@ -302,17 +310,17 @@
           <div>
             <span class="section-label">Worst 12-month periods</span>
             <h1 id="pain-title">Loss periods</h1>
-            <p>Rank the periods in which inflation reduced purchasing power the most, even after the selected deposit return was included.</p>
+            <p>These are the periods in which inflation reduced purchasing power the most after the selected deposit return was included.</p>
           </div>
         </div>
 
         <article class="panel ranking-panel">
           <div class="panel-heading">
             <div>
-              <span class="panel-kicker">Benchmark comparison</span>
-              <h2>Five largest real purchasing-power losses</h2>
+              <span class="panel-kicker">Deposit option comparison</span>
+              <h2>Five largest purchasing-power losses</h2>
             </div>
-            <div class="pain-controls" aria-label="Loss-period benchmark">
+            <div class="pain-controls" aria-label="Loss-period deposit option">
               <button class="pain-choice active" data-strategy="savings" type="button">Savings</button>
               <button class="pain-choice" data-strategy="3m" type="button">3M</button>
               <button class="pain-choice" data-strategy="6m" type="button">6M</button>
@@ -326,60 +334,149 @@
           <div class="explanation-icon">i</div>
           <div>
             <span>What the ranking means</span>
-            <p id="pain-explanation">Choose a benchmark to see a plain-English explanation of its worst historical period.</p>
+            <p id="pain-explanation">Choose a deposit option to see a plain-English explanation of its worst historical period.</p>
           </div>
         </article>
       </section>
 
-      <section class="dashboard-page" data-page="methodology" aria-labelledby="method-title">
+      <section class="dashboard-page methodology-page" data-page="methodology" aria-labelledby="method-title">
         <div class="page-heading">
           <div>
-            <span class="section-label">Data and model rules</span>
+            <span class="section-label">How the dashboard was built</span>
             <h1 id="method-title">Methodology</h1>
-            <p>The dashboard uses the same calculation engine on every page. Missing historical deposit rates are left missing rather than estimated.</p>
+            <p>This page explains where the data came from, what was cleaned or transformed, how each measure is calculated, and where the model has limits.</p>
           </div>
         </div>
 
-        <div class="method-grid">
-          <article class="panel method-card">
-            <span>01</span>
-            <h2>Savings benchmark</h2>
-            <p>Uses the annualised CBN savings rate and compounds it monthly using the published rate for the period.</p>
+        <div class="method-stack">
+          <article class="panel method-section">
+            <div class="method-number">01</div>
+            <div>
+              <span class="panel-kicker">Dataset</span>
+              <h2>132 monthly observations from January 2014 to December 2024</h2>
+              <p>The production dataset combines three historical series: headline consumer prices from the National Bureau of Statistics, deposit rates from the Central Bank of Nigeria, and the CBN official/reference NGN-per-USD exchange rate. The monthly table contains CPI, the savings rate, 3-month, 6-month and 12-month deposit rates, and USD/NGN.</p>
+              <div class="method-facts">
+                <div><span>Time period</span><strong>Jan 2014 — Dec 2024</strong></div>
+                <div><span>Monthly rows</span><strong>132</strong></div>
+                <div><span>Core CPI rows populated</span><strong>132 / 132</strong></div>
+                <div><span>Savings-rate rows populated</span><strong>132 / 132</strong></div>
+                <div><span>USD/NGN rows populated</span><strong>132 / 132</strong></div>
+                <div><span>Unresolved fixed-deposit cells</span><strong>22</strong></div>
+              </div>
+            </div>
           </article>
-          <article class="panel method-card">
-            <span>02</span>
-            <h2>Fixed deposits</h2>
-            <p>Locks the selected tenor rate at the start of each term, accrues simple interest, then rolls the balance at maturity using the next available rate.</p>
+
+          <article class="panel method-section">
+            <div class="method-number">02</div>
+            <div>
+              <span class="panel-kicker">Data preparation</span>
+              <h2>Cleaning and transformation before the dashboard</h2>
+              <p>The source tables were brought to a common monthly format, checked for duplicate months and missing core fields, and aligned to the same January 2014–December 2024 period. CPI stays on the pre-2025 NBS basis so the series is internally comparable instead of mixing two different CPI systems.</p>
+              <ul class="method-list">
+                <li>Dates were standardised to one monthly <code>YYYY-MM</code> key so CPI, deposit rates and exchange rates could be joined consistently.</li>
+                <li>Isolated gaps in the historical CPI table were reconstructed from published year-on-year NBS inflation using <code>CPIₜ = CPIₜ₋₁₂ × (1 + YoY / 100)</code>. This is algebraic reconstruction, not interpolation.</li>
+                <li>For the later exchange-rate period, monthly values were derived from the CBN official/reference daily central rate where the monthly series was not directly available.</li>
+                <li>Missing fixed-deposit rates were deliberately left blank. The simulator stops when a required rollover rate is missing instead of inventing a number.</li>
+                <li>The 2025 rebased CPI series was not appended to this historical module because doing so would mix incompatible CPI bases.</li>
+              </ul>
+            </div>
           </article>
-          <article class="panel method-card">
-            <span>03</span>
-            <h2>Purchasing power</h2>
-            <p>Adjusts the account balance using NBS headline All Items CPI so the result is expressed in the value of naira in the selected starting month.</p>
+
+          <article class="panel method-section">
+            <div class="method-number">03</div>
+            <div>
+              <span class="panel-kicker">Savings calculations</span>
+              <h2>How the account balance is simulated</h2>
+              <p>For the ordinary savings option, the published annual savings rate is converted to a monthly rate and compounded month by month. Fixed deposits are treated differently because a 3-, 6- or 12-month rate is intended to stay fixed for that term.</p>
+              <div class="formula-grid">
+                <div>
+                  <span>Savings account</span>
+                  <code>Balanceₜ = Balanceₜ₋₁ × (1 + annual rate / 1200)</code>
+                </div>
+                <div>
+                  <span>Fixed deposit at maturity</span>
+                  <code>Maturity factor = 1 + (rate / 100) × (months / 12)</code>
+                </div>
+              </div>
+              <p>At the end of a fixed-deposit term, principal plus interest is rolled into the next term using the rate available in that rollover month.</p>
+            </div>
           </article>
-          <article class="panel method-card">
-            <span>04</span>
-            <h2>US dollar value</h2>
-            <p>Converts the simulated naira balance using CBN monthly official/reference NGN-per-USD rates. It does not use the parallel market.</p>
+
+          <article class="panel method-section">
+            <div class="method-number">04</div>
+            <div>
+              <span class="panel-kicker">Purchasing power</span>
+              <h2>Turning the bank balance into a real-value measure</h2>
+              <p>A larger naira balance does not necessarily mean the saver can buy more. The dashboard therefore expresses the end balance in the purchasing power of the selected starting month.</p>
+              <div class="formula-grid">
+                <div>
+                  <span>Inflation-adjusted balance</span>
+                  <code>Real balance = Nominal balance × CPI at start / CPI now</code>
+                </div>
+                <div>
+                  <span>Real return</span>
+                  <code>Real return = Real balance / Starting balance − 1</code>
+                </div>
+              </div>
+              <p>If the real return is negative, the account can still have earned interest while losing purchasing power.</p>
+            </div>
+          </article>
+
+          <article class="panel method-section">
+            <div class="method-number">05</div>
+            <div>
+              <span class="panel-kicker">Exchange-rate view</span>
+              <h2>Showing the same balance in official-rate US dollars</h2>
+              <p>The USD view is another way to show how the external value of the naira changed. The dashboard divides the simulated naira balance by the CBN monthly official/reference NGN-per-USD rate. It does not use parallel-market exchange rates.</p>
+              <div class="formula-grid">
+                <div>
+                  <span>USD equivalent</span>
+                  <code>USD value = Nominal naira balance / NGN per USD</code>
+                </div>
+                <div>
+                  <span>USD wealth index</span>
+                  <code>USD index = Current USD value / Starting USD value × 100</code>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel method-section">
+            <div class="method-number">06</div>
+            <div>
+              <span class="panel-kicker">Tools used</span>
+              <h2>How the project was put together</h2>
+              <div class="tool-grid">
+                <div><strong>D3.js</strong><span>Interactive charts, scales, axes, tooltips and heatmaps.</span></div>
+                <div><strong>JavaScript</strong><span>Simulation engine, page controls, filters and dynamic explanations.</span></div>
+                <div><strong>HTML + CSS</strong><span>Dashboard structure, responsive layout and the emerald visual system.</span></div>
+                <div><strong>Python</strong><span>Data preparation, validation, analysis checks and derived historical metrics.</span></div>
+                <div><strong>GitHub</strong><span>Version control and project repository.</span></div>
+                <div><strong>GitHub Pages</strong><span>Free public hosting for the finished interactive dashboard.</span></div>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel method-section">
+            <div class="method-number">07</div>
+            <div>
+              <span class="panel-kicker">Sources and limitations</span>
+              <h2>What the dashboard does not try to reproduce</h2>
+              <p>This is a historical deposit-rate simulation, not a statement from a particular Nigerian bank. Actual customer returns can differ because banks have product-specific rules, fees, taxes, minimum balances, rate tiers, early-withdrawal penalties and different compounding conventions.</p>
+              <p>The project also uses the official/reference exchange-rate series for consistency. It does not claim that a saver could always obtain US dollars at that rate.</p>
+              <div class="source-links">
+                <a href="https://www.cbn.gov.ng/rates/mnymktind.html" target="_blank" rel="noreferrer">Central Bank of Nigeria — Money Market Indicators ↗</a>
+                <a href="https://microdata.nigerianstat.gov.ng/index.php/catalog/154/download/1127" target="_blank" rel="noreferrer">National Bureau of Statistics — CPI tables ↗</a>
+              </div>
+            </div>
           </article>
         </div>
 
-        <article class="panel source-panel">
-          <div>
-            <span class="panel-kicker">Primary sources</span>
-            <h2>CBN and NBS historical series</h2>
-          </div>
-          <p>Money-market deposit benchmarks and official/reference exchange rates come from the Central Bank of Nigeria. Inflation uses the National Bureau of Statistics headline CPI series on the pre-2025 basis for this 2014–2024 historical module.</p>
-          <div class="source-links">
-            <a href="https://www.cbn.gov.ng/rates/mnymktind.html" target="_blank" rel="noreferrer">CBN Money Market Indicators ↗</a>
-            <a href="https://microdata.nigerianstat.gov.ng/index.php/catalog/154/download/1127" target="_blank" rel="noreferrer">NBS CPI tables ↗</a>
-          </div>
-        </article>
-
-        <article class="explanation-panel">
+        <article class="explanation-panel methodology-summary">
           <div class="explanation-icon">i</div>
           <div>
-            <span>Important limitation</span>
-            <p>This is a benchmark simulation, not a reconstruction of a specific bank account. It does not include bank-specific fees, taxes, minimum balances, early-withdrawal penalties or product-specific compounding rules.</p>
+            <span>In simple terms</span>
+            <p>The dashboard asks one practical question: after your account earns interest, can the money actually buy more than it could when you started? It answers that by comparing the simulated account balance with inflation and the official exchange rate over the same period.</p>
           </div>
         </article>
       </section>
