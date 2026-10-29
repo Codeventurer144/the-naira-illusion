@@ -1214,3 +1214,41 @@ a { color: inherit; }
     animation: none !important;
   }
 }
+
+/* Guide dismissal controls */
+.onboarding {
+  cursor: pointer;
+}
+
+.onboarding-card {
+  cursor: default;
+}
+
+.onboarding-x {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 1px solid rgba(255,255,255,.20) !important;
+  border-radius: 50% !important;
+  background: rgba(255,255,255,.06) !important;
+  color: #ffffff !important;
+  font-size: 24px !important;
+  font-weight: 500 !important;
+  line-height: 1 !important;
+  cursor: pointer;
+}
+
+.onboarding-x:hover {
+  background: rgba(255,255,255,.13) !important;
+  border-color: rgba(255,255,255,.36) !important;
+}
+
+.onboarding-card > #onboarding-close {
+  cursor: pointer;
+}
