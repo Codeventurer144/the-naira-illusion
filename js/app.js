@@ -1,5 +1,8 @@
 import { parseMonthlyRow, validateMonthlyData, simulate, rolling12Months } from "./simulator.js";
 
+const d3 = window.d3;
+if (!d3) throw new Error("D3 failed to load.");
+
 const COLORS = {
   nominal: "#f6b84a",
   real: "#ff8b82",
@@ -92,9 +95,7 @@ async function init() {
     if (positiveSavingsCount) positiveSavingsCount.textContent = wins;
 
     runExperiment({ updateUrl: false });
-    drawReturnStrip();
     renderReturnSummary();
-    drawRollingReturnChart();
     renderPainRanking();
     updateHistoricalExplanation();
 
@@ -377,6 +378,19 @@ function updateHistoricalExplanation() {
 function drawAllScenarioCharts(animate = true) {
   if (!state.result?.series?.length) return;
 
+  if (state.activePage === "simulator") {
+    drawWealthChart(
+      "#simulator-wealth-chart",
+      "#simulator-tooltip",
+      state.result.series,
+      state.scrubIndex,
+      animate,
+      500,
+      "simulator"
+    );
+    return;
+  }
+
   drawWealthChart(
     "#overview-wealth-chart",
     "#overview-tooltip",
@@ -386,17 +400,6 @@ function drawAllScenarioCharts(animate = true) {
     340,
     "overview"
   );
-
-  drawWealthChart(
-    "#simulator-wealth-chart",
-    "#simulator-tooltip",
-    state.result.series,
-    state.scrubIndex,
-    animate,
-    500,
-    "simulator"
-  );
-
   drawInflationRateChart();
   drawRetainedChart();
 }
