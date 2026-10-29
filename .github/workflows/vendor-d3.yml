@@ -1,0 +1,42 @@
+name: Vendor D3
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  vendor-d3:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check for local D3
+        id: check
+        run: |
+          if [ -s js/d3.v7.min.js ]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Download D3 into repository
+        if: steps.check.outputs.exists == 'false'
+        run: |
+          mkdir -p js
+          curl -L --fail --retry 3 https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js -o js/d3.v7.min.js ||           curl -L --fail --retry 3 https://unpkg.com/d3@7.9.0/dist/d3.min.js -o js/d3.v7.min.js
+          test -s js/d3.v7.min.js
+          test "$(wc -c < js/d3.v7.min.js)" -gt 100000
+
+      - name: Commit vendored D3
+        if: steps.check.outputs.exists == 'false'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add js/d3.v7.min.js
+          git commit -m "Vendor D3 locally for reliable dashboard loading"
+          git push
