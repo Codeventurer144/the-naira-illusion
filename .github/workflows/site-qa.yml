@@ -160,7 +160,18 @@ jobs:
           await send('Page.navigate', { url: 'http://127.0.0.1:8000/' });
           await loaded;
 
-          await waitUntil(`document.querySelector('#metric-nominal')?.textContent?.trim() !== '—'`, 20000);
+          await delay(3000);
+
+          const earlyMetric = await evaluate(`document.querySelector('#metric-nominal')?.textContent?.trim() || ''`);
+          const earlyStatus = await evaluate(`document.querySelector('#form-status')?.textContent?.trim() || ''`);
+          console.log('Early metric:', earlyMetric);
+          console.log('Early form status:', earlyStatus || '(empty)');
+          if (exceptions.length) console.log('Early page exceptions:', exceptions);
+          if (consoleErrors.length) console.log('Early console errors:', consoleErrors);
+
+          if (!earlyMetric || earlyMetric === '—') {
+            throw new Error('Dashboard did not initialize. Status: ' + earlyStatus + ' Exceptions: ' + exceptions.join(' | '));
+          }
 
           const d3Loaded = await evaluate('typeof window.d3 === "object"');
           const metric = await evaluate(`document.querySelector('#metric-nominal').textContent.trim()`);
