@@ -1252,3 +1252,6 @@ a { color: inherit; }
 .onboarding-card > #onboarding-close {
   cursor: pointer;
 }
+
+
+[hidden] { display: none !important; }
