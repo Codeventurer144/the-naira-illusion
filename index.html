@@ -15,13 +15,13 @@
 <body>
   <a class="skip-link" href="#dashboard-main">Skip to dashboard</a>
 
-  <div id="onboarding" class="onboarding" role="dialog" aria-modal="true" aria-labelledby="onboarding-title">
+  <div id="onboarding" class="onboarding" role="dialog" aria-modal="true" aria-labelledby="onboarding-title" onclick="if(event.target===this){this.hidden=true;}">
     <div class="onboarding-card">
-      <button id="onboarding-x" class="onboarding-x" type="button" aria-label="Close guide">×</button>
+      <button id="onboarding-x" class="onboarding-x" type="button" aria-label="Close guide" onclick="document.getElementById('onboarding').hidden=true">×</button>
       <span class="onboarding-step">START HERE</span>
       <h2 id="onboarding-title">Try the dashboard with your own savings example</h2>
       <p>Enter an amount, choose when it was saved and when you want to withdraw it, then select the deposit option. Click <strong>Run analysis</strong> to see what the account balance could become and what that amount would be worth after inflation.</p>
-      <button id="onboarding-close" type="button">Got it — let me try</button>
+      <button id="onboarding-close" type="button" onclick="document.getElementById('onboarding').hidden=true">Got it — let me try</button>
       <div class="guide-arrow" aria-hidden="true"><span>←</span><small>Use these inputs</small></div>
     </div>
   </div>
@@ -492,6 +492,7 @@
 
       function dismissGuide() {
         if (!overlay) return;
+        overlay.hidden = true;
         overlay.classList.add("hidden");
         overlay.setAttribute("aria-hidden", "true");
         window.setTimeout(function () {
