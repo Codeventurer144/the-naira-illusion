@@ -89,7 +89,8 @@ async function init() {
     formatAmountInput();
 
     const wins = state.rolling.filter(d => d.strategy === "savings" && d.status === "ok" && d.real_return_pct > 0).length;
-    el("positive-savings-count")?.textContent = wins;
+    const positiveSavingsCount = el("positive-savings-count");
+    if (positiveSavingsCount) positiveSavingsCount.textContent = wins;
 
     runExperiment({ updateUrl: false });
     drawReturnStrip();
@@ -168,15 +169,13 @@ function bindControls() {
   const closeGuide = el("onboarding-close");
   if (closeGuide) {
     closeGuide.addEventListener("click", () => {
-      el("onboarding").classList.add("hidden");
-      setTimeout(() => el("starting-balance").focus(), 50);
+      if (window.dismissNairaGuide) window.dismissNairaGuide();
     });
   }
 
   document.addEventListener("keydown", event => {
     if (event.key === "Escape" && !el("onboarding")?.classList.contains("hidden")) {
-      el("onboarding").classList.add("hidden");
-      el("starting-balance").focus();
+      if (window.dismissNairaGuide) window.dismissNairaGuide();
     }
   });
 }
