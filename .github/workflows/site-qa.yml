@@ -31,9 +31,23 @@ jobs:
 
           CHROME="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)"
           test -n "$CHROME"
-          "$CHROME" --headless=new --no-sandbox --disable-gpu             --remote-debugging-port=9222             --user-data-dir=/tmp/naira-chrome             about:blank > /tmp/chrome.log 2>&1 &
-          sleep 2
-          curl --fail http://127.0.0.1:9222/json/version >/dev/null
+
+          "$CHROME" --headless=new --no-sandbox --disable-gpu             --remote-debugging-address=127.0.0.1             --remote-debugging-port=9222             --user-data-dir=/tmp/naira-chrome             about:blank > /tmp/chrome.log 2>&1 &
+
+          READY=0
+          for i in $(seq 1 30); do
+            if curl -s --fail http://127.0.0.1:9222/json/version >/dev/null; then
+              READY=1
+              break
+            fi
+            sleep 0.5
+          done
+
+          if [ "$READY" -ne 1 ]; then
+            echo "Chrome debugging endpoint did not start."
+            cat /tmp/chrome.log || true
+            exit 1
+          fi
 
       - name: Full browser interaction QA
         run: |
@@ -101,19 +115,20 @@ jobs:
           function waitForEvent(method, timeout = 15000) {
             return new Promise((resolve, reject) => {
               const list = waiters.get(method) || [];
-              const entry = { resolve, reject };
+              const entry = {};
+              entry.resolve = value => {
+                clearTimeout(timer);
+                resolve(value);
+              };
               list.push(entry);
               waiters.set(method, list);
+
               const timer = setTimeout(() => {
                 const active = waiters.get(method) || [];
                 const i = active.indexOf(entry);
                 if (i >= 0) active.splice(i, 1);
                 reject(new Error('Timed out waiting for ' + method));
               }, timeout);
-              entry.resolve = value => {
-                clearTimeout(timer);
-                resolve(value);
-              };
             });
           }
 
@@ -213,6 +228,7 @@ jobs:
             console.error('Page exceptions:', exceptions);
             throw new Error('Browser page exception detected.');
           }
+
           if (consoleErrors.length) {
             console.error('Console errors:', consoleErrors);
             throw new Error('Browser console error detected.');
