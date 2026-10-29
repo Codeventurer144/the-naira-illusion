@@ -1,4 +1,3 @@
-import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
 import { parseMonthlyRow, validateMonthlyData, simulate, rolling12Months } from "./simulator.js";
 
 const COLORS = {
@@ -166,18 +165,6 @@ function bindControls() {
 
   el("copy-result").addEventListener("click", copyResult);
 
-  const closeGuide = el("onboarding-close");
-  if (closeGuide) {
-    closeGuide.addEventListener("click", () => {
-      if (window.dismissNairaGuide) window.dismissNairaGuide();
-    });
-  }
-
-  document.addEventListener("keydown", event => {
-    if (event.key === "Escape" && !el("onboarding")?.classList.contains("hidden")) {
-      if (window.dismissNairaGuide) window.dismissNairaGuide();
-    }
-  });
 }
 
 function switchPage(page) {
