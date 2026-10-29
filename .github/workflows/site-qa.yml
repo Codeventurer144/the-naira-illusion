@@ -21,45 +21,208 @@ jobs:
           node --check js/app.js
           node --check js/simulator.js
 
-      - name: Start local site
+      - name: Start local site and Chrome
         run: |
           python3 -m http.server 8000 --bind 127.0.0.1 > /tmp/naira-server.log 2>&1 &
-          echo $! > /tmp/naira-server.pid
           sleep 2
           curl --fail http://127.0.0.1:8000/index.html >/dev/null
           curl --fail http://127.0.0.1:8000/data/naira_illusion_monthly.csv >/dev/null
+          curl --fail http://127.0.0.1:8000/js/d3.v7.min.js >/dev/null
 
-      - name: Render dashboard in headless Chrome
-        run: |
           CHROME="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)"
           test -n "$CHROME"
-          "$CHROME" --headless=new --no-sandbox --disable-gpu --virtual-time-budget=12000             --dump-dom http://127.0.0.1:8000/ > /tmp/default-dom.html
+          "$CHROME" --headless=new --no-sandbox --disable-gpu             --remote-debugging-port=9222             --user-data-dir=/tmp/naira-chrome             about:blank > /tmp/chrome.log 2>&1 &
+          sleep 2
+          curl --fail http://127.0.0.1:9222/json/version >/dev/null
 
-          grep -q "1,503,654" /tmp/default-dom.html
-          test "$(grep -o "<svg" /tmp/default-dom.html | wc -l)" -ge 3
-          grep -q "Got it — let me try" /tmp/default-dom.html
-          ! grep -q "onboarding-x" /tmp/default-dom.html
-
-          "$CHROME" --headless=new --no-sandbox --disable-gpu --virtual-time-budget=12000             --dump-dom "http://127.0.0.1:8000/?balance=2000000&start=2020-01&end=2024-01&strategy=savings"             > /tmp/changed-dom.html
-
-          grep -q "2,000,000" /tmp/changed-dom.html
-          grep -q "overview-explanation" /tmp/changed-dom.html
-          ! grep -q 'id="metric-nominal">—<' /tmp/changed-dom.html
-
-          "$CHROME" --headless=new --no-sandbox --disable-gpu             --window-size=1440,1000             --screenshot=site-qa.png             http://127.0.0.1:8000/
-
-      - name: Static interaction checks
+      - name: Full browser interaction QA
         run: |
-          grep -q 'data-page-target="overview"' index.html
-          grep -q 'data-page-target="simulator"' index.html
-          grep -q 'data-page-target="history"' index.html
-          grep -q 'data-page-target="pain"' index.html
-          grep -q 'data-page-target="methodology"' index.html
-          grep -q 'onclick="document.getElementById('''onboarding''').hidden=true' index.html
-          test "$(grep -c 'class="panel method-section"' index.html)" -eq 7
-          grep -q 'function switchPage(page)' js/app.js
-          grep -q 'function runExperiment' js/app.js
-          grep -q 'function renderPainRanking' js/app.js
+          cat > /tmp/site-qa.mjs <<'EOF'
+          import fs from 'node:fs';
+          import assert from 'node:assert/strict';
+
+          const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+          async function getTarget(url) {
+            const r = await fetch('http://127.0.0.1:9222/json/new?' + encodeURIComponent(url), { method: 'PUT' });
+            if (!r.ok) throw new Error('Could not create Chrome target: ' + r.status);
+            return r.json();
+          }
+
+          const target = await getTarget('http://127.0.0.1:8000/');
+          const ws = new WebSocket(target.webSocketDebuggerUrl);
+          const pending = new Map();
+          const waiters = new Map();
+          const exceptions = [];
+          const consoleErrors = [];
+          let nextId = 1;
+
+          await new Promise((resolve, reject) => {
+            ws.addEventListener('open', resolve, { once: true });
+            ws.addEventListener('error', reject, { once: true });
+          });
+
+          ws.addEventListener('message', event => {
+            const msg = JSON.parse(event.data);
+
+            if (msg.id && pending.has(msg.id)) {
+              const { resolve, reject } = pending.get(msg.id);
+              pending.delete(msg.id);
+              if (msg.error) reject(new Error(msg.error.message));
+              else resolve(msg.result);
+              return;
+            }
+
+            if (msg.method === 'Runtime.exceptionThrown') {
+              const d = msg.params.exceptionDetails;
+              exceptions.push(d.exception?.description || d.text || 'Unknown page exception');
+            }
+
+            if (msg.method === 'Runtime.consoleAPICalled' && msg.params.type === 'error') {
+              const text = msg.params.args.map(a => a.value ?? a.description ?? '').join(' ');
+              consoleErrors.push(text);
+            }
+
+            const list = waiters.get(msg.method);
+            if (list?.length) {
+              const waiter = list.shift();
+              waiter.resolve(msg.params);
+            }
+          });
+
+          function send(method, params = {}) {
+            return new Promise((resolve, reject) => {
+              const id = nextId++;
+              pending.set(id, { resolve, reject });
+              ws.send(JSON.stringify({ id, method, params }));
+            });
+          }
+
+          function waitForEvent(method, timeout = 15000) {
+            return new Promise((resolve, reject) => {
+              const list = waiters.get(method) || [];
+              const entry = { resolve, reject };
+              list.push(entry);
+              waiters.set(method, list);
+              const timer = setTimeout(() => {
+                const active = waiters.get(method) || [];
+                const i = active.indexOf(entry);
+                if (i >= 0) active.splice(i, 1);
+                reject(new Error('Timed out waiting for ' + method));
+              }, timeout);
+              entry.resolve = value => {
+                clearTimeout(timer);
+                resolve(value);
+              };
+            });
+          }
+
+          async function evaluate(expression) {
+            const result = await send('Runtime.evaluate', {
+              expression,
+              returnByValue: true,
+              awaitPromise: true
+            });
+            if (result.exceptionDetails) {
+              throw new Error(result.exceptionDetails.exception?.description || result.exceptionDetails.text);
+            }
+            return result.result.value;
+          }
+
+          async function waitUntil(expression, timeout = 15000) {
+            const start = Date.now();
+            while (Date.now() - start < timeout) {
+              if (await evaluate(expression)) return;
+              await delay(150);
+            }
+            throw new Error('Timed out waiting for expression: ' + expression);
+          }
+
+          await send('Runtime.enable');
+          await send('Page.enable');
+
+          const loaded = waitForEvent('Page.loadEventFired');
+          await send('Page.navigate', { url: 'http://127.0.0.1:8000/' });
+          await loaded;
+
+          await waitUntil(`document.querySelector('#metric-nominal')?.textContent?.trim() !== '—'`, 20000);
+
+          const d3Loaded = await evaluate('typeof window.d3 === "object"');
+          const metric = await evaluate(`document.querySelector('#metric-nominal').textContent.trim()`);
+          const realMetric = await evaluate(`document.querySelector('#metric-real').textContent.trim()`);
+          const svgCount = await evaluate(`document.querySelectorAll('#overview-wealth-chart svg, #inflation-rate-chart svg, #retained-chart svg').length`);
+          const formStatus = await evaluate(`document.querySelector('#form-status').textContent.trim()`);
+          const guideVisible = await evaluate(`!document.querySelector('#onboarding').hidden && getComputedStyle(document.querySelector('#onboarding')).display !== 'none'`);
+
+          console.log('D3 loaded:', d3Loaded);
+          console.log('Default nominal metric:', metric);
+          console.log('Default real metric:', realMetric);
+          console.log('Overview SVG count:', svgCount);
+          console.log('Form status:', formStatus || '(empty)');
+          console.log('Guide visible:', guideVisible);
+
+          assert.equal(d3Loaded, true, 'D3 was not available.');
+          assert.match(metric, /1,503,654/, 'Default account balance did not populate correctly.');
+          assert.equal(svgCount, 3, 'Overview charts did not all render.');
+          assert.equal(formStatus, '', 'Dashboard reported a load error.');
+          assert.equal(guideVisible, true, 'Guide should be visible on first load.');
+
+          await evaluate(`document.querySelector('#onboarding-close').click()`);
+          await waitUntil(`document.querySelector('#onboarding').hidden === true`);
+          console.log('Guide closed successfully.');
+
+          await evaluate(`document.querySelector('[data-page-target="simulator"]').click()`);
+          await waitUntil(`document.querySelector('[data-page="simulator"]').classList.contains('active') && document.querySelectorAll('#simulator-wealth-chart svg').length === 1`);
+          console.log('Simulator page rendered.');
+
+          await evaluate(`document.querySelector('[data-page-target="history"]').click()`);
+          await waitUntil(`document.querySelector('[data-page="history"]').classList.contains('active') && document.querySelectorAll('#return-strip svg').length === 1 && document.querySelectorAll('#rolling-return-chart svg').length === 1`);
+          console.log('Historical returns page rendered.');
+
+          await evaluate(`document.querySelector('[data-page-target="pain"]').click()`);
+          await waitUntil(`document.querySelector('[data-page="pain"]').classList.contains('active')`);
+          const painRows = await evaluate(`document.querySelectorAll('#pain-ranking .pain-row').length`);
+          assert.equal(painRows, 5, 'Loss-period ranking did not render five rows.');
+          console.log('Loss periods page rendered.');
+
+          await evaluate(`document.querySelector('[data-page-target="methodology"]').click()`);
+          await waitUntil(`document.querySelector('[data-page="methodology"]').classList.contains('active')`);
+          const methodCount = await evaluate(`document.querySelectorAll('.method-section').length`);
+          assert.equal(methodCount, 7, 'Methodology should have seven detailed sections.');
+          console.log('Methodology page rendered.');
+
+          await evaluate(`document.querySelector('[data-page-target="overview"]').click()`);
+          await evaluate(`
+            document.querySelector('#starting-balance').value = '2000000';
+            document.querySelector('#start-date').value = '2020-01';
+            document.querySelector('#end-date').value = '2024-01';
+            document.querySelector('#experiment-form').requestSubmit();
+          `);
+          await waitUntil(`document.querySelector('#starting-balance').value === '2,000,000' && document.querySelector('#scenario-chip').textContent.includes('2,000,000')`);
+
+          const changedMetric = await evaluate(`document.querySelector('#metric-nominal').textContent.trim()`);
+          const changedExplanation = await evaluate(`document.querySelector('#overview-explanation').textContent.trim()`);
+          console.log('Updated nominal metric:', changedMetric);
+          assert.notEqual(changedMetric, '—', 'Updated simulation did not populate.');
+          assert.match(changedExplanation, /2,000,000/, 'Updated explanation did not reflect the new amount.');
+
+          const shot = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true });
+          fs.writeFileSync('site-qa.png', Buffer.from(shot.data, 'base64'));
+
+          if (exceptions.length) {
+            console.error('Page exceptions:', exceptions);
+            throw new Error('Browser page exception detected.');
+          }
+          if (consoleErrors.length) {
+            console.error('Console errors:', consoleErrors);
+            throw new Error('Browser console error detected.');
+          }
+
+          console.log('QA PASSED');
+          ws.close();
+          EOF
+
+          node /tmp/site-qa.mjs
 
       - name: Upload QA screenshot
         if: always()
